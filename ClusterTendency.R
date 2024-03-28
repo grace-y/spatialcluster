@@ -1,9 +1,26 @@
-### Function for evaluating tendency for spots to cluster or disperse
+# FUNCTION: clust_tend
+# 
+# Description: evaluating tendency for spots to cluster or disperse
+#
+# @param Visium_sample Seurat object with a Visium sample dataset
+# @param gene Name of gene of interest
+# @param threshold Cutoff value for gene of interest, i.e. spots with expression values.
+# higher than the threshold will be considered positive. 1 by default
+# @param num_sims Number of simulation executions. Use histogram output to determine 
+# if more simulations are needed, and decrease if runtime too long. 10000 by default
+#
+# @return numpos Number of positive spots
+# @return numspots Number of total spots on Visium sample
+# @return x Number of spots in clusters observed on Visium sample
+# @return percentile Percentile of observed number of clusters compared to simulated distribution of clusters
+# @return p p-value of observed number of clusters compared to median of simulated distribution of clusters
+#
+# plot output: Histogram of simulated numbers of clusters
 
 clust_tend <- function(
-    Visium_sample = temple2b, 
-    gene = "CDKN1A", 
-    threshold = 0.5, 
+    Visium_sample, 
+    gene, 
+    threshold = 1, 
     num_sims = 10000
     ){
   
@@ -47,9 +64,9 @@ clust_tend <- function(
     
   }
   
-  hist(clust_distr) 
+  hist(clust_distr, main = "Histogram of simulated distribution", xlab = "Number of clusters") 
   
-  ## Compare number of clusters observed to distribution
+  # Compare number of spots in clusters
   x <- num_clusters(senc_xy)
   
   # Directly calculate percentile of simulated distribution (non-parametric)
@@ -66,11 +83,7 @@ clust_tend <- function(
   
   if(p > 1) p = 1
   
-  result <- list("numpos" = numpos, "numspots" = numspots, "percentile" = percentile(x), "p" = p)
+  result <- list("numpos" = numpos, "numspots" = numspots, "numclusters" = x, "percentile" = percentile(x), "p" = p)
   
   return(result)
 }
-
-
-
-
